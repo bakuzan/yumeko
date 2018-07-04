@@ -1,3 +1,9 @@
+extern crate yumeko;
+
 fn main() {
-    println!("Hello, world!");
+    let deck = yumeko::get_shuffled_deck();
+
+    for card in deck {
+        println!("{:?}", card);
+    }
 }
