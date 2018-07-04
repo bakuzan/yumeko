@@ -1,6 +1,6 @@
 [package]
-name = "cards"
+name = "yumeko"
 version = "0.1.0"
-authors = ["Steven Walsh <steven.walsh@worksmart.co.uk>"]
+authors = ["bakuzan <imannoyed4days@hotmail.co.uk>"]
 
 [dependencies]
