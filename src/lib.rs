@@ -1,6 +1,7 @@
-use self::deck::Card;
+pub use self::deck::card::Card;
+pub use self::deck::*;
 
 pub mod constants;
-pub mod deck;
+mod deck;
 
-pub fn deal_round(deck: Vec<Card>) -> (Card, Card) {}
+pub fn deal_round(deck: Vec<Card>) {}

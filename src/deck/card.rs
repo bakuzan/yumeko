@@ -1,4 +1,4 @@
-use suit::Suit;
+use super::suit::Suit;
 
 #[derive(Debug)]
 pub struct Card {
