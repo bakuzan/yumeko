@@ -29,3 +29,6 @@ pub const CARD_DATA: [(&'static str, u32); 13] = [
     (QUEEN, 10),
     (KING, 10),
 ];
+
+pub const PLAYER_STAY: u32 = 1;
+pub const PLAYER_HIT: u32 = 2;
