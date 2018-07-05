@@ -5,12 +5,13 @@ pub use self::deck::card::Card;
 pub mod constants;
 mod deck;
 
-fn deal_round(deck: &Vec<Card>) -> (Vec<Card>, (&Card, &Card), (&Card, &Card)) {
-    let hands = &deck[..4];
-    let player = (&hands[0], &hands[2]);
-    let dealer = (&hands[1], &hands[3]);
+fn deal_round(cards: &Vec<Card>) -> (Vec<Card>, (Card, Card), (Card, Card)) {
+    let mut cards = cards.to_vec();
 
-    (deck.to_vec(), player, dealer)
+    let player = (cards.remove(0), cards.remove(2));
+    let dealer = (cards.remove(1), cards.remove(3));
+
+    (cards.to_vec(), player, dealer)
 }
 
 pub fn play_blackjack() {
