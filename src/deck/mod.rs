@@ -1,3 +1,6 @@
+use rand;
+use rand::Rng;
+
 use self::card::Card;
 use self::suit::Suit;
 use super::constants;
@@ -5,10 +8,14 @@ use super::constants;
 pub mod card;
 pub mod suit;
 
+fn shuffle(arr: &mut Vec<Card>) {
+    rand::thread_rng().shuffle(arr);
+}
+
 pub fn get_shuffled_deck() -> Vec<Card> {
-    let cards = self::build_deck(false);
-    // TODO
-    // SHUFFLE
+    let mut cards = self::build_deck(false);
+    self::shuffle(&mut cards);
+
     cards
 }
 

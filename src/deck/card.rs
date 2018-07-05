@@ -1,6 +1,6 @@
 use super::suit::Suit;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Card {
     suit: Suit,
     name: String,
