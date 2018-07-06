@@ -7,6 +7,10 @@ pub use self::deck::card::Card;
 pub mod constants;
 mod deck;
 
+fn build_string_from_vec(v: Vec<&'static str>) -> String {
+    v.into_iter().collect()
+}
+
 fn take_a_card(cards: &Vec<Card>, hand: &Vec<Card>) -> (Vec<Card>, Vec<Card>) {
     let mut cards = cards.to_vec();
     let mut new_hand = vec![cards.remove(0)];
@@ -112,9 +116,36 @@ fn is_valid_hand(hand: &Vec<Card>) -> bool {
     get_hand_total(&hand) <= constants::BLACKJACK_MAXIMUM
 }
 
-pub fn play_blackjack() {
-    println!("Yumeko - Blackjack");
+fn get_hand_result(player: &Vec<Card>, dealer: &Vec<Card>) -> (bool, String) {
+    let player_total = get_hand_total(player);
+    let dealer_total = get_hand_total(dealer);
 
+    let result = player_total > dealer_total;
+    let message = format!("You: {}\nDealer: {}", player_total, dealer_total);
+
+    (result, message)
+}
+
+fn play_again() {
+    println!("Play again?");
+
+    let mut input_text = String::new();
+    io::stdin()
+        .read_line(&mut input_text)
+        .expect("failed to read from stdin");
+
+    let trimmed = input_text.trim();
+    let lowerChoice = trimmed.to_lowercase();
+    let options: String = build_string_from_vec(constants::YES_OPTIONS);
+
+    if options.contains(lowerChoice) {
+        play_a_hand();
+    } else {
+        println!("Bye!");
+    }
+}
+
+fn play_a_hand() {
     let cards = deck::get_shuffled_deck();
     let (cards, player_hand, dealer_hand) = deal_round(&cards);
 
@@ -124,23 +155,23 @@ pub fn play_blackjack() {
 
     let mut user_is_active = true;
     let mut active_deck = cards;
-    let mut active_hand = player_hand;
+    let mut player_active_hand = player_hand;
 
     while user_is_active {
         println!("\nYour hand: ");
-        display_hand(&active_hand);
+        display_hand(&player_active_hand);
 
-        let processed_input = handle_user_choice(&active_deck, &active_hand);
+        let processed_input = handle_user_choice(&active_deck, &player_active_hand);
 
         active_deck = processed_input.1;
-        active_hand = processed_input.2;
+        player_active_hand = processed_input.2;
 
         let action = processed_input.0;
-        let hand_is_valid = is_valid_hand(&active_hand);
+        let hand_is_valid = is_valid_hand(&player_active_hand);
         user_is_active = action != constants::PLAYER_STAY && hand_is_valid;
 
         if !hand_is_valid {
-            println!("Bust!\nDealer Wins.");
+            return println!("Bust!\nDealer Wins.");
         }
     }
 
@@ -151,11 +182,23 @@ pub fn play_blackjack() {
     dealer_active_hand = processed_input.2;
 
     let dealer_hand_is_valid = is_valid_hand(&dealer_active_hand);
+    let (player_won, message) = get_hand_result(&player_active_hand, &dealer_active_hand);
+
+    println!("Scores:\n{}\n", message);
 
     if !dealer_hand_is_valid {
-        println!("Bust!\nPlayer Wins.");
+        println!("Bust!\nYou Win.");
+    } else if player_won {
+        println!("You won!");
+    } else {
+        println!("You lost");
     }
 
-    // TODO
-    // Compare scores, pick winner
+    play_again();
+}
+
+pub fn play_blackjack() {
+    println!("Yumeko - Blackjack");
+
+    play_a_hand();
 }

@@ -1,3 +1,5 @@
+pub const YES_OPTIONS: Vec<&'static str> = vec!["y", "yes", "ok"];
+
 pub const JOKER: &'static str = "Joker";
 pub const ACE: &'static str = "Ace";
 pub const TWO: &'static str = "Two";
