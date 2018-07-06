@@ -4,7 +4,7 @@ use super::suit::Suit;
 pub struct Card {
     suit: Suit,
     name: String,
-    value: u32,
+    pub value: u32,
     order: usize,
 }
 
@@ -16,5 +16,9 @@ impl Card {
             value: value.clone(),
             order: order.clone(),
         }
+    }
+
+    pub fn display(&self) -> String {
+        format!("{} of {}", self.name, self.suit)
     }
 }

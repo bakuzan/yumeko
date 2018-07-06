@@ -32,3 +32,5 @@ pub const CARD_DATA: [(&'static str, u32); 13] = [
 
 pub const PLAYER_STAY: u32 = 1;
 pub const PLAYER_HIT: u32 = 2;
+
+pub const BLACKJACK_MAXIMUM: u32 = 21;

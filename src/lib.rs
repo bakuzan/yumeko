@@ -24,6 +24,66 @@ fn deal_round(cards: &Vec<Card>) -> (Vec<Card>, Vec<Card>, Vec<Card>) {
     (cards.to_vec(), player, dealer)
 }
 
+fn display_hand(hand: &Vec<Card>) {
+    println!("\nYour hand: ");
+
+    let mut total = 0;
+    for c in hand {
+        total += c.value;
+        println!("  {}", c.display());
+    }
+
+    println!("Hand value: {}", total);
+}
+
+fn handle_user_choice(cards: &Vec<Card>, player_hand: &Vec<Card>) -> (u32, Vec<Card>, Vec<Card>) {
+    println!(
+        "\nWhat would you like to do?
+         1) Stay
+         2) Hit"
+    );
+
+    loop {
+        let mut input_text = String::new();
+        io::stdin()
+            .read_line(&mut input_text)
+            .expect("failed to read from stdin");
+
+        let trimmed = input_text.trim();
+        match trimmed.parse::<u32>() {
+            Ok(choice) => {
+                if choice == constants::PLAYER_HIT {
+                    println!("HIT: {}", choice);
+
+                    let (cards, player_hand) = take_a_card(&cards, &player_hand);
+                    return (choice, cards.to_vec(), player_hand.to_vec());
+                } else if choice == constants::PLAYER_STAY {
+                    println!("STAY: {}", choice);
+
+                    return (choice, cards.to_vec(), player_hand.to_vec());
+                } else {
+                    println!("Invalid Choice: {}", trimmed);
+                    // TODO
+                    // HANDLE INCORRECT INPUT
+                }
+            }
+            Err(..) => {
+                println!("Invalid Choice: {}", trimmed);
+                // TODO
+                // HANDLE INCORRECT INPUT
+            }
+        };
+    }
+}
+
+fn is_valid_hand(hand: &Vec<Card>) -> bool {
+    let mut total = 0;
+    for c in hand {
+        total += c.value;
+    }
+    return total <= constants::BLACKJACK_MAXIMUM;
+}
+
 pub fn play_blackjack() {
     println!("Yumeko - Blackjack");
 
@@ -34,38 +94,19 @@ pub fn play_blackjack() {
     println!("dealer {:?}", dealer_hand);
     println!("{}", cards.len());
 
-    println!(
-        "What would you like to do?
-         1) Stay
-         2) Hit"
-    );
+    let mut is_playing = true;
+    let mut active_deck = cards;
+    let mut active_hand = player_hand;
 
-    let mut input_text = String::new();
-    io::stdin()
-        .read_line(&mut input_text)
-        .expect("failed to read from stdin");
+    while is_playing {
+        display_hand(&active_hand);
 
-    let trimmed = input_text.trim();
-    match trimmed.parse::<u32>() {
-        Ok(choice) => {
-            if choice == constants::PLAYER_HIT {
-                println!("HIT: {}", choice);
+        let processed_input = handle_user_choice(&active_deck, &active_hand);
 
-                let (cards, player_hand) = take_a_card(&cards, &player_hand);
+        active_deck = processed_input.1;
+        active_hand = processed_input.2;
 
-                println!("current hand: {:?}", player_hand);
-                println!("{}", cards.len());
-            } else if choice == constants::PLAYER_STAY {
-                println!("STAY: {}", choice);
-            } else {
-                // TODO
-                // HANDLE INCORRECT INPUT
-            }
-        }
-        Err(..) => {
-            println!("this was not an integer: {}", trimmed);
-            // TODO
-            // HANDLE INCORRECT INPUT
-        }
-    };
+        let action = processed_input.0;
+        is_playing = action != constants::PLAYER_STAY && is_valid_hand(&active_hand);
+    }
 }
