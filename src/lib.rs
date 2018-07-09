@@ -1,7 +1,5 @@
 extern crate rand;
 
-use std::io;
-
 pub use self::deck::card::Card;
 
 pub mod constants;
@@ -9,17 +7,14 @@ mod deal;
 mod deck;
 mod game;
 mod inform;
+mod user_input;
 
 fn handle_user_choice(cards: &Vec<Card>, player_hand: &Vec<Card>) -> (u32, Vec<Card>, Vec<Card>) {
     inform::display_user_options(player_hand);
 
     loop {
-        let mut input_text = String::new();
-        io::stdin()
-            .read_line(&mut input_text)
-            .expect("failed to read from stdin");
+        let trimmed = user_input::take();
 
-        let trimmed = input_text.trim();
         match trimmed.parse::<u32>() {
             Ok(choice) => {
                 if choice == constants::PLAYER_HIT {

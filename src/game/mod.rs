@@ -1,7 +1,6 @@
-use std::io;
-
 use super::constants;
 use super::deck;
+use super::user_input;
 use super::Card;
 
 pub fn pair_is_equal(hand: &Vec<Card>) -> bool {
@@ -45,14 +44,9 @@ fn player_answers_yes(choice: &str) -> bool {
 pub fn play_again(cards: Vec<Card>, callback: &Fn(Vec<Card>)) {
     println!("Play again?");
 
-    let mut input_text = String::new();
-    io::stdin()
-        .read_line(&mut input_text)
-        .expect("failed to read from stdin");
+    let trimmed = user_input::take();
 
-    let trimmed = input_text.trim();
-
-    if player_answers_yes(trimmed) {
+    if player_answers_yes(&trimmed) {
         let next_round_deck = if cards.len() < 25 {
             deck::get_shuffled_deck()
         } else {
