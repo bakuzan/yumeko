@@ -156,7 +156,7 @@ fn player_answers_yes(choice: &str) -> bool {
     options.contains(lower_choice)
 }
 
-fn play_again() {
+fn play_again(cards: Vec<Card>) {
     println!("Play again?");
 
     let mut input_text = String::new();
@@ -167,14 +167,19 @@ fn play_again() {
     let trimmed = input_text.trim();
 
     if player_answers_yes(trimmed) {
-        play_a_hand();
+        let next_round_deck = if cards.len() < 25 {
+            deck::get_shuffled_deck()
+        } else {
+            cards
+        };
+
+        play_a_hand(next_round_deck);
     } else {
         println!("Bye!");
     }
 }
 
-fn play_a_hand() {
-    let cards = deck::get_shuffled_deck();
+fn play_a_hand(cards: Vec<Card>) {
     let (cards, player_hand, dealer_hand) = deal_round(&cards);
 
     display_dealers_first_card(&dealer_hand);
@@ -222,11 +227,12 @@ fn play_a_hand() {
         println!("You lost");
     }
 
-    play_again();
+    play_again(active_deck);
 }
 
 pub fn play_blackjack() {
     println!("Yumeko - Blackjack");
 
-    play_a_hand();
+    let cards = deck::get_shuffled_deck();
+    play_a_hand(cards);
 }
