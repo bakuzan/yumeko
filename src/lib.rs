@@ -7,10 +7,6 @@ pub use self::deck::card::Card;
 pub mod constants;
 mod deck;
 
-fn build_string_from_vec(v: Vec<&'static str>) -> String {
-    v.into_iter().collect()
-}
-
 fn take_a_card(cards: &Vec<Card>, hand: &Vec<Card>) -> (Vec<Card>, Vec<Card>) {
     let mut cards = cards.to_vec();
     let mut new_hand = vec![cards.remove(0)];
@@ -36,6 +32,22 @@ fn display_hand(hand: &Vec<Card>) {
     }
 
     println!("Hand value: {}", total);
+}
+
+fn display_player_hand(hand: &Vec<Card>) {
+    println!("\nYour hand: ");
+    display_hand(hand);
+}
+
+fn display_dealer_hand(hand: &Vec<Card>) {
+    println!("\nDealer hand: ");
+    display_hand(hand);
+}
+
+fn display_dealers_first_card(hand: &Vec<Card>) {
+    println!("\nOne of the Dealer's cards is: ");
+    let card_one = hand.get(0).unwrap();
+    println!("  {}", card_one.display());
 }
 
 fn handle_user_choice(cards: &Vec<Card>, player_hand: &Vec<Card>) -> (u32, Vec<Card>, Vec<Card>) {
@@ -84,13 +96,14 @@ fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &Vec<Card>) -> (u32, Vec<
     let mut current_hand = dealer_hand.to_vec();
 
     while dealer_not_satified {
-        println!("\nDealer hand: ");
-        display_hand(&current_hand);
+        display_dealer_hand(&current_hand);
 
-        let updated = take_a_card(&cards, &dealer_hand);
+        let updated = take_a_card(&current_deck, &dealer_hand);
 
         current_deck = updated.0;
         current_hand = updated.1;
+
+        println!("{:?}", current_hand);
 
         dealer_not_satified = get_hand_total(&current_hand) < constants::DEALER_STANDS_VALUE;
     }
@@ -121,9 +134,16 @@ fn get_hand_result(player: &Vec<Card>, dealer: &Vec<Card>) -> (bool, String) {
     let dealer_total = get_hand_total(dealer);
 
     let result = player_total > dealer_total;
-    let message = format!("You: {}\nDealer: {}", player_total, dealer_total);
+    let message = format!("  You: {}\n  Dealer: {}", player_total, dealer_total);
 
     (result, message)
+}
+
+fn player_answers_yes(choice: &str) -> bool {
+    let options: &str = constants::YES_OPTIONS;
+    let lower_choice: &str = &choice.to_lowercase();
+
+    options.contains(lower_choice)
 }
 
 fn play_again() {
@@ -135,10 +155,8 @@ fn play_again() {
         .expect("failed to read from stdin");
 
     let trimmed = input_text.trim();
-    let lowerChoice = trimmed.to_lowercase();
-    let options: String = build_string_from_vec(constants::YES_OPTIONS);
 
-    if options.contains(lowerChoice) {
+    if player_answers_yes(trimmed) {
         play_a_hand();
     } else {
         println!("Bye!");
@@ -149,17 +167,15 @@ fn play_a_hand() {
     let cards = deck::get_shuffled_deck();
     let (cards, player_hand, dealer_hand) = deal_round(&cards);
 
-    println!("player {:?}", player_hand);
-    println!("dealer {:?}", dealer_hand);
-    println!("{}", cards.len());
+    display_dealers_first_card(&dealer_hand);
 
     let mut user_is_active = true;
     let mut active_deck = cards;
     let mut player_active_hand = player_hand;
+    let mut dealer_active_hand = dealer_hand;
 
     while user_is_active {
-        println!("\nYour hand: ");
-        display_hand(&player_active_hand);
+        display_player_hand(&player_active_hand);
 
         let processed_input = handle_user_choice(&active_deck, &player_active_hand);
 
@@ -169,25 +185,27 @@ fn play_a_hand() {
         let action = processed_input.0;
         let hand_is_valid = is_valid_hand(&player_active_hand);
         user_is_active = action != constants::PLAYER_STAY && hand_is_valid;
-
-        if !hand_is_valid {
-            return println!("Bust!\nDealer Wins.");
-        }
     }
 
-    let mut dealer_active_hand = dealer_hand;
-    let processed_input = process_dealer_turn(&active_deck, &dealer_active_hand);
+    let player_hand_is_valid = is_valid_hand(&player_active_hand);
+    if player_hand_is_valid {
+        let processed_input = process_dealer_turn(&active_deck, &dealer_active_hand);
 
-    active_deck = processed_input.1;
-    dealer_active_hand = processed_input.2;
+        active_deck = processed_input.1;
+        dealer_active_hand = processed_input.2;
+    }
 
     let dealer_hand_is_valid = is_valid_hand(&dealer_active_hand);
     let (player_won, message) = get_hand_result(&player_active_hand, &dealer_active_hand);
 
+    display_player_hand(&player_active_hand);
+    display_dealer_hand(&dealer_active_hand);
     println!("Scores:\n{}\n", message);
 
-    if !dealer_hand_is_valid {
-        println!("Bust!\nYou Win.");
+    if !player_hand_is_valid {
+        println!("You're Bust!\nDealer Wins.");
+    } else if !dealer_hand_is_valid {
+        println!("Dealer Bust!\nYou Win.");
     } else if player_won {
         println!("You won!");
     } else {
