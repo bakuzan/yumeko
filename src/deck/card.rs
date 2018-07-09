@@ -3,7 +3,7 @@ use super::suit::Suit;
 #[derive(Debug, Clone)]
 pub struct Card {
     suit: Suit,
-    name: String,
+    pub name: String,
     pub value: u32,
     order: usize,
 }

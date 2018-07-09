@@ -35,6 +35,15 @@ pub const CARD_DATA: [(&'static str, u32); 13] = [
 pub const DEALER_DONE: u32 = 0;
 pub const PLAYER_STAY: u32 = 1;
 pub const PLAYER_HIT: u32 = 2;
+pub const PLAYER_SPLIT: u32 = 3;
 
+pub const STARTING_HAND_COUNT: usize = 2;
 pub const BLACKJACK_MAXIMUM: u32 = 21;
 pub const DEALER_STANDS_VALUE: u32 = 17;
+
+pub const CHOICE_TEXT: &'static str = "
+\nWhat would you like to do?
+    1) Stand
+    2) Hit";
+
+pub const CHOICE_TEXT_SPLIT: &'static str = "    3) Split";

@@ -10,6 +10,7 @@ pub enum Suit {
   Hearts,
   Spades,
 }
+
 impl Suit {
   pub fn iterator() -> Iter<'static, Suit> {
     static SUITS: [Suit; 4] = [Clubs, Diamonds, Hearts, Spades];
@@ -17,6 +18,7 @@ impl Suit {
     SUITS.into_iter()
   }
 }
+
 impl fmt::Display for Suit {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{:?}", self)

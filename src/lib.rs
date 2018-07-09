@@ -50,12 +50,23 @@ fn display_dealers_first_card(hand: &Vec<Card>) {
     println!("  {}", card_one.display());
 }
 
+fn pair_is_equal(hand: &Vec<Card>) -> bool {
+    let card_one = hand.get(0).unwrap();
+    let card_two = hand.get(1).unwrap();
+
+    card_one.name == card_two.name
+}
+
 fn handle_user_choice(cards: &Vec<Card>, player_hand: &Vec<Card>) -> (u32, Vec<Card>, Vec<Card>) {
-    println!(
-        "\nWhat would you like to do?
-         1) Stay
-         2) Hit"
-    );
+    let standard_options: &str = &constants::CHOICE_TEXT;
+    let additional_option: &str =
+        if player_hand.len() == constants::STARTING_HAND_COUNT && pair_is_equal(player_hand) {
+            &constants::CHOICE_TEXT_SPLIT
+        } else {
+            ""
+        };
+
+    println!("{}\n{}", standard_options, additional_option);
 
     loop {
         let mut input_text = String::new();
@@ -75,16 +86,17 @@ fn handle_user_choice(cards: &Vec<Card>, player_hand: &Vec<Card>) -> (u32, Vec<C
                     println!("STAY: {}", choice);
 
                     return (choice, cards.to_vec(), player_hand.to_vec());
+                } else if choice == constants::PLAYER_SPLIT {
+                    println!("SPLIT: {}", choice);
+
+                //TODO
+                // SPLIT LOGIC
                 } else {
                     println!("Invalid Choice: {}", trimmed);
-                    // TODO
-                    // ADD SPLIT
                 }
             }
             Err(..) => {
                 println!("Invalid Choice: {}", trimmed);
-                // TODO
-                // HANDLE INCORRECT INPUT
             }
         };
     }
@@ -102,8 +114,6 @@ fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &Vec<Card>) -> (u32, Vec<
 
         current_deck = updated.0;
         current_hand = updated.1;
-
-        println!("{:?}", current_hand);
 
         dealer_not_satified = get_hand_total(&current_hand) < constants::DEALER_STANDS_VALUE;
     }
