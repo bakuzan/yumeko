@@ -1,5 +1,6 @@
 extern crate rand;
 
+pub use self::deal::hand::Hand;
 pub use self::deck::card::Card;
 
 pub mod constants;

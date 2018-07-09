@@ -1,4 +1,7 @@
+use self::hand::Hand;
 use super::Card;
+
+pub mod hand;
 
 pub fn take_a_card(cards: &Vec<Card>, hand: &Vec<Card>) -> (Vec<Card>, Vec<Card>) {
     let mut cards = cards.to_vec();
