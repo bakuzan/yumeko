@@ -2,6 +2,11 @@ use super::constants;
 use super::game;
 use super::Hand;
 
+pub fn display_separator() {
+    let line = "-".repeat(20);
+    println!("{}", line);
+}
+
 pub fn display_hand(hand: &Hand) {
     let cards = hand.get();
     let total = hand.total();
@@ -16,6 +21,11 @@ pub fn display_hand(hand: &Hand) {
 pub fn display_player_hand(hand: &Hand) {
     println!("\nYour hand: ");
     display_hand(hand);
+}
+
+pub fn display_blackjack(hand: &Hand) {
+    let who = hand.get_owner();
+    println!("{} Blackjack!", who);
 }
 
 pub fn display_dealer_hand(hand: &Hand) {
@@ -52,6 +62,8 @@ pub fn display_round_summary(
 ) {
     let (player_won, message) = round_result;
     let (player_hand_is_valid, dealer_hand_is_valid) = valid_flags;
+    let player_blackjack = player_hand.is_blackjack();
+    let dealer_blackjack = dealer_hand.is_blackjack();
 
     display_player_hand(player_hand);
     display_dealer_hand(dealer_hand);
@@ -61,6 +73,10 @@ pub fn display_round_summary(
         println!("You're Bust!\nDealer Wins.");
     } else if !dealer_hand_is_valid {
         println!("Dealer Bust!\nYou Win.");
+    } else if dealer_blackjack {
+        display_blackjack(dealer_hand);
+    } else if player_blackjack {
+        display_blackjack(player_hand);
     } else if player_won {
         println!("You won!");
     } else {

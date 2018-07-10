@@ -1,3 +1,4 @@
+use super::constants;
 use super::Card;
 
 #[derive(Debug, Clone)]
@@ -14,6 +15,14 @@ impl Hand {
         }
     }
 
+    pub fn get_owner(&self) -> String {
+        if self.id == constants::DEALER_ID {
+            String::from("Dealer")
+        } else {
+            String::from("Player")
+        }
+    }
+
     pub fn get(&self) -> Vec<Card> {
         self.values.to_vec()
     }
@@ -22,13 +31,38 @@ impl Hand {
         self.values.push(new_card);
     }
 
+    fn hand_contains_at_least(&self, card_name: &str, number: usize) -> bool {
+        let card_name_string = card_name.to_string();
+        let matches: Vec<Card> = self.get()
+            .iter()
+            .filter(|c| c.name == card_name_string)
+            .cloned()
+            .collect();
+
+        matches.len() >= number
+    }
+
     pub fn total(&self) -> u32 {
         let mut total = 0;
-        // TODO handle ace being 1 or 11
+
         for c in &self.values {
             total += c.value;
         }
 
-        total
+        // Only treat an ace as 11 if you won't go bust.
+        let ace_as_eleven_total = total + 10;
+        let hand_has_ace = self.hand_contains_at_least(&constants::ACE, 1);
+
+        if !hand_has_ace || ace_as_eleven_total > constants::BLACKJACK_MAXIMUM {
+            total
+        } else {
+            ace_as_eleven_total
+        }
+    }
+
+    pub fn is_blackjack(&self) -> bool {
+        self.values.len() == 2
+            && self.hand_contains_at_least(&constants::ACE, 1)
+            && self.total() == constants::BLACKJACK_MAXIMUM
     }
 }

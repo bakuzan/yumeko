@@ -11,6 +11,11 @@ mod inform;
 mod user_input;
 
 fn handle_user_choice(cards: &Vec<Card>, player_hand: &mut Hand) -> (u32, Vec<Card>) {
+    if player_hand.is_blackjack() {
+        inform::display_blackjack(player_hand);
+        return (constants::PLAYER_STAY, cards.to_vec());
+    }
+
     inform::display_user_options(player_hand);
 
     loop {
@@ -59,6 +64,7 @@ fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &mut Hand) -> (Vec<Card>)
 }
 
 fn play_a_hand(cards: Vec<Card>) {
+    inform::display_separator();
     let (cards, player_hand, dealer_hand) = deal::deal_round(&cards);
 
     inform::display_dealers_first_card(&dealer_hand);
@@ -80,7 +86,11 @@ fn play_a_hand(cards: Vec<Card>) {
     }
 
     let player_hand_is_valid = game::is_valid_hand(&player_active_hand);
-    if player_hand_is_valid {
+    let dealer_blackjack = dealer_active_hand.is_blackjack();
+    let player_blackjack = player_active_hand.is_blackjack();
+    let no_blackjacks = player_blackjack || dealer_blackjack;
+
+    if player_hand_is_valid && no_blackjacks {
         active_deck = process_dealer_turn(&active_deck, &mut dealer_active_hand);
     }
 
