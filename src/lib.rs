@@ -10,7 +10,7 @@ mod game;
 mod inform;
 mod user_input;
 
-fn handle_user_choice(cards: &Vec<Card>, player_hand: &Vec<Card>) -> (u32, Vec<Card>, Vec<Card>) {
+fn handle_user_choice(cards: &Vec<Card>, player_hand: &mut Hand) -> (u32, Vec<Card>) {
     inform::display_user_options(player_hand);
 
     loop {
@@ -21,12 +21,12 @@ fn handle_user_choice(cards: &Vec<Card>, player_hand: &Vec<Card>) -> (u32, Vec<C
                 if choice == constants::PLAYER_HIT {
                     println!("HIT: {}", choice);
 
-                    let (cards, player_hand) = deal::take_a_card(&cards, &player_hand);
-                    return (choice, cards.to_vec(), player_hand.to_vec());
+                    let cards = deal::take_a_card(&cards, player_hand);
+                    return (choice, cards.to_vec());
                 } else if choice == constants::PLAYER_STAY {
                     println!("STAY: {}", choice);
 
-                    return (choice, cards.to_vec(), player_hand.to_vec());
+                    return (choice, cards.to_vec());
                 } else if choice == constants::PLAYER_SPLIT {
                     println!("SPLIT: {}", choice);
 
@@ -43,27 +43,19 @@ fn handle_user_choice(cards: &Vec<Card>, player_hand: &Vec<Card>) -> (u32, Vec<C
     }
 }
 
-fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &Vec<Card>) -> (u32, Vec<Card>, Vec<Card>) {
+fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &mut Hand) -> (Vec<Card>) {
     let mut dealer_not_satified = true;
     let mut current_deck = cards.to_vec();
-    let mut current_hand = dealer_hand.to_vec();
 
     while dealer_not_satified {
-        inform::display_dealer_hand(&current_hand);
+        inform::display_dealer_hand(&dealer_hand);
 
-        let updated = deal::take_a_card(&current_deck, &dealer_hand);
+        current_deck = deal::take_a_card(&current_deck, dealer_hand);
 
-        current_deck = updated.0;
-        current_hand = updated.1;
-
-        dealer_not_satified = game::get_hand_total(&current_hand) < constants::DEALER_STANDS_VALUE;
+        dealer_not_satified = dealer_hand.total() < constants::DEALER_STANDS_VALUE;
     }
 
-    return (
-        constants::DEALER_DONE,
-        current_deck.to_vec(),
-        current_hand.to_vec(),
-    );
+    current_deck.to_vec()
 }
 
 fn play_a_hand(cards: Vec<Card>) {
@@ -79,22 +71,17 @@ fn play_a_hand(cards: Vec<Card>) {
     while user_is_active {
         inform::display_player_hand(&player_active_hand);
 
-        let processed_input = handle_user_choice(&active_deck, &player_active_hand);
+        let updated = handle_user_choice(&active_deck, &mut player_active_hand);
+        active_deck = updated.1;
 
-        active_deck = processed_input.1;
-        player_active_hand = processed_input.2;
-
-        let action = processed_input.0;
+        let action = updated.0;
         let hand_is_valid = game::is_valid_hand(&player_active_hand);
         user_is_active = action != constants::PLAYER_STAY && hand_is_valid;
     }
 
     let player_hand_is_valid = game::is_valid_hand(&player_active_hand);
     if player_hand_is_valid {
-        let processed_input = process_dealer_turn(&active_deck, &dealer_active_hand);
-
-        active_deck = processed_input.1;
-        dealer_active_hand = processed_input.2;
+        active_deck = process_dealer_turn(&active_deck, &mut dealer_active_hand);
     }
 
     let dealer_hand_is_valid = game::is_valid_hand(&dealer_active_hand);

@@ -32,6 +32,9 @@ pub const CARD_DATA: [(&'static str, u32); 13] = [
     (KING, 10),
 ];
 
+pub const PLAYER_ID: u32 = 1;
+pub const DEALER_ID: u32 = 2;
+
 pub const DEALER_DONE: u32 = 0;
 pub const PLAYER_STAY: u32 = 1;
 pub const PLAYER_HIT: u32 = 2;

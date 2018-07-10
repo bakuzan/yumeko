@@ -1,37 +1,41 @@
 use super::constants;
 use super::game;
-use super::Card;
+use super::Hand;
 
-pub fn display_hand(hand: &Vec<Card>) {
-    let mut total = 0;
-    for c in hand {
-        total += c.value;
+pub fn display_hand(hand: &Hand) {
+    let cards = hand.get();
+    let total = hand.total();
+
+    for c in cards {
         println!("  {}", c.display());
     }
 
     println!("Hand value: {}", total);
 }
 
-pub fn display_player_hand(hand: &Vec<Card>) {
+pub fn display_player_hand(hand: &Hand) {
     println!("\nYour hand: ");
     display_hand(hand);
 }
 
-pub fn display_dealer_hand(hand: &Vec<Card>) {
+pub fn display_dealer_hand(hand: &Hand) {
     println!("\nDealer hand: ");
     display_hand(hand);
 }
 
-pub fn display_dealers_first_card(hand: &Vec<Card>) {
+pub fn display_dealers_first_card(hand: &Hand) {
     println!("\nOne of the Dealer's cards is: ");
-    let card_one = hand.get(0).unwrap();
+    let values = hand.get();
+    let card_one = values.get(0).unwrap();
     println!("  {}", card_one.display());
 }
 
-pub fn display_user_options(hand: &Vec<Card>) {
+pub fn display_user_options(hand: &Hand) {
     let standard_options: &str = &constants::CHOICE_TEXT;
+    let cards = hand.get();
+
     let additional_option: &str =
-        if hand.len() == constants::STARTING_HAND_COUNT && game::pair_is_equal(hand) {
+        if cards.len() == constants::STARTING_HAND_COUNT && game::pair_is_equal(hand) {
             &constants::CHOICE_TEXT_SPLIT
         } else {
             ""
@@ -41,8 +45,8 @@ pub fn display_user_options(hand: &Vec<Card>) {
 }
 
 pub fn display_round_summary(
-    player_hand: &Vec<Card>,
-    dealer_hand: &Vec<Card>,
+    player_hand: &Hand,
+    dealer_hand: &Hand,
     round_result: (bool, String),
     valid_flags: (bool, bool),
 ) {

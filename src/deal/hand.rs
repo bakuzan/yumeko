@@ -7,7 +7,7 @@ pub struct Hand {
 }
 
 impl Hand {
-    pub fn new(id: u32, values: &Vec<Card>) -> Hand {
+    pub fn new(id: u32, values: Vec<Card>) -> Hand {
         Hand {
             id,
             values: values.to_vec(),

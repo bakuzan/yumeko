@@ -2,31 +2,23 @@ use super::constants;
 use super::deck;
 use super::user_input;
 use super::Card;
+use super::Hand;
 
-pub fn pair_is_equal(hand: &Vec<Card>) -> bool {
-    let card_one = hand.get(0).unwrap();
-    let card_two = hand.get(1).unwrap();
+pub fn pair_is_equal(hand: &Hand) -> bool {
+    let cards = hand.get();
+    let card_one = cards.get(0).unwrap();
+    let card_two = cards.get(1).unwrap();
 
     card_one.name == card_two.name
 }
 
-pub fn get_hand_total(hand: &Vec<Card>) -> u32 {
-    let mut total = 0;
-    // TODO handle ace being 1 or 11
-    for c in hand {
-        total += c.value;
-    }
-
-    total
+pub fn is_valid_hand(hand: &Hand) -> bool {
+    hand.total() <= constants::BLACKJACK_MAXIMUM
 }
 
-pub fn is_valid_hand(hand: &Vec<Card>) -> bool {
-    get_hand_total(&hand) <= constants::BLACKJACK_MAXIMUM
-}
-
-pub fn get_round_result(player: &Vec<Card>, dealer: &Vec<Card>) -> (bool, String) {
-    let player_total = get_hand_total(player);
-    let dealer_total = get_hand_total(dealer);
+pub fn get_round_result(player: &Hand, dealer: &Hand) -> (bool, String) {
+    let player_total = player.total();
+    let dealer_total = dealer.total();
 
     let result = player_total > dealer_total;
     let message = format!("  You: {}\n  Dealer: {}", player_total, dealer_total);
