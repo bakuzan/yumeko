@@ -1,6 +1,7 @@
 use super::constants;
 use super::deck;
 use super::user_input;
+use super::utils;
 use super::Card;
 use super::Hand;
 
@@ -17,17 +18,27 @@ pub fn is_valid_hand(hand: &Hand) -> bool {
 }
 
 pub fn player_has_valid_hand(hands: &Vec<Hand>) -> bool {
-    let hand_validities: Vec<bool> = hands.iter().map(|&h| is_valid_hand(&h)).collect();
+    let hand_validities: Vec<bool> = utils::iter_map_collect(hands, |h| is_valid_hand(&h));
 
     hand_validities.contains(&true)
 }
 
-pub fn get_round_result(player: &Hand, dealer: &Hand) -> (bool, String) {
-    let player_total = player.total();
-    let dealer_total = dealer.total();
+pub fn player_has_blackjack(hands: &Vec<Hand>) -> bool {
+    hands.len() == 1 && hands.get(0).unwrap().is_blackjack()
+}
 
-    let result = player_total > dealer_total;
-    let message = format!("  You: {}\n  Dealer: {}", player_total, dealer_total);
+pub fn get_round_result(player: &Vec<Hand>, dealer: &Hand) -> (bool, String) {
+    let dealer_total = dealer.total();
+    let player_totals: Vec<u32> = utils::iter_map_collect(player, |h| h.total());
+
+    let result = player_totals.iter().any(|&t| t > dealer_total);
+    let player_totals_display =
+        utils::iter_map_collect(&player_totals, |&t| t.to_string()).join(", ");
+
+    let message = format!(
+        "  You: {}\n  Dealer: {}",
+        player_totals_display, dealer_total
+    );
 
     (result, message)
 }

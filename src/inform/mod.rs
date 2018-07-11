@@ -55,17 +55,19 @@ pub fn display_user_options(hand: &Hand) {
 }
 
 pub fn display_round_summary(
-    player_hand: &Hand,
+    player_hands: &Vec<Hand>,
     dealer_hand: &Hand,
     round_result: (bool, String),
     valid_flags: (bool, bool),
 ) {
     let (player_won, message) = round_result;
     let (player_hand_is_valid, dealer_hand_is_valid) = valid_flags;
-    let player_blackjack = player_hand.is_blackjack();
+    let player_blackjack = game::player_has_blackjack(&player_hands);
     let dealer_blackjack = dealer_hand.is_blackjack();
 
-    display_player_hand(player_hand);
+    for hand in player_hands.iter() {
+        display_player_hand(hand);
+    }
     display_dealer_hand(dealer_hand);
     println!("Scores:\n{}\n", message);
 
@@ -76,6 +78,7 @@ pub fn display_round_summary(
     } else if dealer_blackjack {
         display_blackjack(dealer_hand);
     } else if player_blackjack {
+        let player_hand = player_hands.get(0).unwrap();
         display_blackjack(player_hand);
     } else if player_won {
         println!("You won!");
