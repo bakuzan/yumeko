@@ -45,7 +45,7 @@ pub fn display_user_options(hand: &Hand) {
     let cards = hand.get();
 
     let additional_option: &str =
-        if cards.len() == constants::STARTING_HAND_COUNT && game::pair_is_equal(hand) {
+        if cards.len() == constants::STARTING_HAND_COUNT && hand.can_split() {
             &constants::CHOICE_TEXT_SPLIT
         } else {
             ""

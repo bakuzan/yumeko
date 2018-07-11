@@ -77,7 +77,7 @@ fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> Vec<Card> {
                 has_unprocessed = true;
             }
 
-            let hand_is_valid = game::is_valid_hand(&player_active_hand);
+            let hand_is_valid = player_active_hand.is_valid();
             user_is_active = action != constants::PLAYER_STAY && hand_is_valid;
         }
 
@@ -123,7 +123,7 @@ fn play_a_hand(cards: Vec<Card>) {
         active_deck = process_dealer_turn(&active_deck, &mut dealer_active_hand);
     }
 
-    let dealer_hand_is_valid = game::is_valid_hand(&dealer_active_hand);
+    let dealer_hand_is_valid = dealer_active_hand.is_valid();
     let round_result = game::get_round_result(&player_hands, &dealer_active_hand);
 
     inform::display_round_summary(

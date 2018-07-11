@@ -72,4 +72,16 @@ impl Hand {
             && self.hand_contains_at_least(&constants::ACE, 1)
             && self.total() == constants::BLACKJACK_MAXIMUM
     }
+
+    pub fn can_split(&self) -> bool {
+        let cards = self.get();
+        let card_one = cards.get(0).unwrap();
+        let card_two = cards.get(1).unwrap();
+
+        cards.len() == 2 && card_one.name == card_two.name
+    }
+
+    pub fn is_valid(&self) -> bool {
+        self.total() <= constants::BLACKJACK_MAXIMUM
+    }
 }

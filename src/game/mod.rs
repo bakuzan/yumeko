@@ -5,20 +5,8 @@ use super::utils;
 use super::Card;
 use super::Hand;
 
-pub fn pair_is_equal(hand: &Hand) -> bool {
-    let cards = hand.get();
-    let card_one = cards.get(0).unwrap();
-    let card_two = cards.get(1).unwrap();
-
-    card_one.name == card_two.name
-}
-
-pub fn is_valid_hand(hand: &Hand) -> bool {
-    hand.total() <= constants::BLACKJACK_MAXIMUM
-}
-
 pub fn player_has_valid_hand(hands: &Vec<Hand>) -> bool {
-    let hand_validities: Vec<bool> = utils::iter_map_collect(hands, |h| is_valid_hand(&h));
+    let hand_validities: Vec<bool> = utils::iter_map_collect(hands, |h| h.is_valid());
 
     hand_validities.contains(&true)
 }
