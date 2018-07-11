@@ -61,13 +61,14 @@ fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> (Vec<Card>, 
     while has_unprocessed {
         let mut user_is_active = true;
         let mut cloned_hands = hands.clone();
-        let mut player_active_hand = &mut cloned_hands[processed_hand_count];
         has_unprocessed = false;
 
         while user_is_active {
+            let mut player_active_hand = &mut cloned_hands[processed_hand_count];
+
             inform::display_player_hand(&player_active_hand);
 
-            let updated = handle_user_choice(&cards, &mut player_active_hand);
+            let updated = handle_user_choice(&current_deck, &mut player_active_hand);
             let action = updated.0;
             current_deck = updated.1;
 
@@ -81,6 +82,9 @@ fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> (Vec<Card>, 
             user_is_active = action != constants::PLAYER_STAY && hand_is_valid;
         }
 
+        let updated_hand = cloned_hands.remove(processed_hand_count);
+        hands.remove(processed_hand_count);
+        hands.insert(processed_hand_count, updated_hand);
         processed_hand_count += 1;
     }
 
