@@ -2,6 +2,7 @@ extern crate rand;
 
 pub use self::deal::hand::Hand;
 pub use self::deck::card::Card;
+pub use self::deck::suit::Suit;
 
 pub mod constants;
 mod deal;
@@ -11,10 +12,10 @@ mod inform;
 mod user_input;
 mod utils;
 
-fn handle_user_choice(cards: &Vec<Card>, player_hand: &mut Hand) -> (u32, Vec<Card>) {
+fn handle_user_choice(cards: &Vec<Card>, player_hand: &mut Hand) -> (u32, Vec<Card>, Option<Hand>) {
     if player_hand.is_blackjack() {
         inform::display_blackjack(player_hand);
-        return (constants::PLAYER_STAY, cards.to_vec());
+        return (constants::PLAYER_STAY, cards.to_vec(), None);
     }
 
     inform::display_user_options(player_hand);
@@ -25,14 +26,22 @@ fn handle_user_choice(cards: &Vec<Card>, player_hand: &mut Hand) -> (u32, Vec<Ca
         match trimmed.parse::<u32>() {
             Ok(choice) => {
                 if choice == constants::PLAYER_HIT {
-                    println!("HIT");
-
+                    println!("Player Hits");
                     let cards = deal::take_a_card(&cards, player_hand);
-                    return (choice, cards.to_vec());
-                } else if choice == constants::PLAYER_STAY || choice == constants::PLAYER_SPLIT {
-                    println!("STAY/SPLIT: {}", choice);
 
-                    return (choice, cards.to_vec());
+                    return (choice, cards.to_vec(), None);
+                } else if choice == constants::PLAYER_STAY {
+                    println!("Player Stands");
+
+                    return (choice, cards.to_vec(), None);
+                } else if choice == constants::PLAYER_SPLIT {
+                    println!("Player Splits");
+
+                    let mut second_hand = player_hand.split();
+                    let cards = deal::take_a_card(&cards, player_hand);
+                    let cards = deal::take_a_card(&cards, &mut second_hand);
+
+                    return (choice, cards.to_vec(), Some(second_hand));
                 } else {
                     println!("Invalid Choice: {}", trimmed);
                 }
@@ -63,7 +72,7 @@ fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> Vec<Card> {
 
             let action = updated.0;
             if action == constants::PLAYER_SPLIT {
-                let second_hand = player_active_hand.split();
+                let second_hand = updated.2.unwrap();
                 hands.push(second_hand);
                 has_unprocessed = true;
             }
