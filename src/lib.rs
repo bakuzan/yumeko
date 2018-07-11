@@ -53,7 +53,7 @@ fn handle_user_choice(cards: &Vec<Card>, player_hand: &mut Hand) -> (u32, Vec<Ca
     }
 }
 
-fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> Vec<Card> {
+fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> (Vec<Card>, Vec<Hand>) {
     let mut current_deck = cards.to_vec();
     let mut has_unprocessed = true;
     let mut processed_hand_count = 0;
@@ -68,9 +68,9 @@ fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> Vec<Card> {
             inform::display_player_hand(&player_active_hand);
 
             let updated = handle_user_choice(&cards, &mut player_active_hand);
+            let action = updated.0;
             current_deck = updated.1;
 
-            let action = updated.0;
             if action == constants::PLAYER_SPLIT {
                 let second_hand = updated.2.unwrap();
                 hands.push(second_hand);
@@ -84,7 +84,7 @@ fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> Vec<Card> {
         processed_hand_count += 1;
     }
 
-    current_deck.to_vec()
+    (current_deck.to_vec(), hands.to_vec())
 }
 
 fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &mut Hand) -> Vec<Card> {
@@ -108,11 +108,11 @@ fn play_a_hand(cards: Vec<Card>) {
 
     inform::display_dealers_first_card(&dealer_hand);
 
-    let mut active_deck = cards;
+    let active_deck = cards;
     let mut player_hands = vec![player_hand];
     let mut dealer_active_hand = dealer_hand;
 
-    active_deck = process_player_turn(&active_deck, &mut player_hands);
+    let (mut active_deck, player_hands) = process_player_turn(&active_deck, &mut player_hands);
 
     let player_hand_is_valid = game::player_has_valid_hand(&player_hands);
     let dealer_blackjack = dealer_active_hand.is_blackjack();
