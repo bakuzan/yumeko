@@ -66,28 +66,36 @@ fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &mut Hand) -> (Vec<Card>)
 fn play_a_hand(cards: Vec<Card>) {
     inform::display_separator();
     let (cards, player_hand, dealer_hand) = deal::deal_round(&cards);
+    let player_hands = vec![player_hand];
 
     inform::display_dealers_first_card(&dealer_hand);
 
-    let mut user_is_active = true;
     let mut active_deck = cards;
-    let mut player_active_hand = player_hand;
     let mut dealer_active_hand = dealer_hand;
 
-    while user_is_active {
-        inform::display_player_hand(&player_active_hand);
+    for player_active_hand in player_hands.iter() {
+        let mut user_is_active = true;
 
-        let updated = handle_user_choice(&active_deck, &mut player_active_hand);
-        active_deck = updated.1;
+        while user_is_active {
+            inform::display_player_hand(&player_active_hand);
 
-        let action = updated.0;
-        let hand_is_valid = game::is_valid_hand(&player_active_hand);
-        user_is_active = action != constants::PLAYER_STAY && hand_is_valid;
+            let updated = handle_user_choice(&active_deck, &mut player_active_hand);
+            active_deck = updated.1;
+
+            let action = updated.0;
+            if action == constants::PLAYER_SPLIT {
+                let second_hand = player_active_hand.split();
+                player_hands.push(second_hand);
+            }
+
+            let hand_is_valid = game::is_valid_hand(&player_active_hand);
+            user_is_active = action != constants::PLAYER_STAY && hand_is_valid;
+        }
     }
 
-    let player_hand_is_valid = game::is_valid_hand(&player_active_hand);
+    let player_hand_is_valid = game::player_has_valid_hand(&player_hands);
     let dealer_blackjack = dealer_active_hand.is_blackjack();
-    let player_blackjack = player_active_hand.is_blackjack();
+    let player_blackjack = player_hands.len() == 1 && player_hands.get(0).unwrap().is_blackjack();
     let no_blackjacks = player_blackjack || dealer_blackjack;
 
     if player_hand_is_valid && no_blackjacks {

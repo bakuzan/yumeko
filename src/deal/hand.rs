@@ -31,6 +31,13 @@ impl Hand {
         self.values.push(new_card);
     }
 
+    pub fn split(&mut self) -> Hand {
+        let card = self.values.remove(1);
+        let hand_two = Hand::new(constants::PLAYER_ID, vec![card]);
+
+        hand_two
+    }
+
     fn hand_contains_at_least(&self, card_name: &str, number: usize) -> bool {
         let card_name_string = card_name.to_string();
         let matches: Vec<Card> = self.get()

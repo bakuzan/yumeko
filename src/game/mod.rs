@@ -16,6 +16,12 @@ pub fn is_valid_hand(hand: &Hand) -> bool {
     hand.total() <= constants::BLACKJACK_MAXIMUM
 }
 
+pub fn player_has_valid_hand(hands: &Vec<Hand>) -> bool {
+    let hand_validities: Vec<bool> = hands.iter().map(|&h| is_valid_hand(&h)).collect();
+
+    hand_validities.contains(&true)
+}
+
 pub fn get_round_result(player: &Hand, dealer: &Hand) -> (bool, String) {
     let player_total = player.total();
     let dealer_total = dealer.total();
