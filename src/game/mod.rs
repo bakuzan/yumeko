@@ -15,11 +15,18 @@ pub fn player_has_blackjack(hands: &Vec<Hand>) -> bool {
     hands.len() == 1 && hands.get(0).unwrap().is_blackjack()
 }
 
+pub fn should_dealer_hit(hand: &Hand) -> bool {
+    hand.total() < constants::DEALER_STANDS_VALUE
+}
+
 pub fn get_round_result(player: &Vec<Hand>, dealer: &Hand) -> (bool, String) {
     let dealer_total = dealer.total();
     let player_totals: Vec<u32> = utils::iter_map_collect(player, |h| h.total());
 
-    let result = player_totals.iter().any(|&t| t > dealer_total);
+    let result = player_totals
+        .iter()
+        .any(|&t| t > dealer_total && t <= constants::BLACKJACK_MAXIMUM);
+
     let player_totals_display =
         utils::iter_map_collect(&player_totals, |&t| t.to_string()).join(", ");
 

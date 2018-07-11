@@ -92,7 +92,7 @@ fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> (Vec<Card>, 
 }
 
 fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &mut Hand) -> Vec<Card> {
-    let mut dealer_not_satified = true;
+    let mut dealer_not_satified = game::should_dealer_hit(&dealer_hand);
     let mut current_deck = cards.to_vec();
 
     while dealer_not_satified {
@@ -100,7 +100,7 @@ fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &mut Hand) -> Vec<Card> {
 
         current_deck = deal::take_a_card(&current_deck, dealer_hand);
 
-        dealer_not_satified = dealer_hand.total() < constants::DEALER_STANDS_VALUE;
+        dealer_not_satified = game::should_dealer_hit(&dealer_hand);
     }
 
     current_deck.to_vec()
@@ -120,10 +120,8 @@ fn play_a_hand(cards: Vec<Card>) {
 
     let player_hand_is_valid = game::player_has_valid_hand(&player_hands);
     let dealer_blackjack = dealer_active_hand.is_blackjack();
-    let player_blackjack = game::player_has_blackjack(&player_hands);
-    let no_blackjacks = player_blackjack || dealer_blackjack;
 
-    if player_hand_is_valid && no_blackjacks {
+    if player_hand_is_valid && !dealer_blackjack {
         active_deck = process_dealer_turn(&active_deck, &mut dealer_active_hand);
     }
 
