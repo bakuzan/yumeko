@@ -45,19 +45,21 @@ fn player_answers_yes(choice: &str) -> bool {
     options.contains(lower_choice)
 }
 
-pub fn play_again(cards: Vec<Card>, callback: &Fn(Vec<Card>)) {
+pub fn play_again(round: u32, cards: Vec<Card>, callback: &Fn(Vec<Card>, u32)) {
     println!("Play again?");
 
     let trimmed = user_input::take();
+    utils::clear_console();
 
     if player_answers_yes(&trimmed) {
+        let next_round = round + 1;
         let next_round_deck = if cards.len() < 25 {
             deck::get_shuffled_deck()
         } else {
             cards
         };
 
-        callback(next_round_deck);
+        callback(next_round_deck, next_round);
     } else {
         println!("Bye!");
     }

@@ -1,10 +1,18 @@
 use super::constants;
 use super::game;
+use super::utils;
+use super::Card;
 use super::Hand;
 
-pub fn display_separator() {
-    let line = "-".repeat(20);
-    println!("{}", line);
+pub fn display_round(cards: &Vec<Card>, number: &u32) {
+    let deck_size = cards.len();
+    let deck_status = if deck_size != constants::JOKERLESS_DECK_COUNT {
+        ""
+    } else {
+        " - Fresh deck"
+    };
+
+    println!("Round {}{}", number, deck_status);
 }
 
 pub fn display_hand(hand: &Hand) {
@@ -28,7 +36,7 @@ pub fn display_blackjack(hand: &Hand) {
     println!("{} Blackjack!", who);
 }
 
-pub fn display_dealer_hand(hand: &Hand) {
+fn display_dealer_hand(hand: &Hand) {
     println!("\nDealer hand: ");
     display_hand(hand);
 }
@@ -54,6 +62,11 @@ pub fn display_user_options(hand: &Hand) {
     println!("{}\n{}", standard_options, additional_option);
 }
 
+pub fn display_users_received_choice(choice: &str) {
+    utils::clear_console();
+    println!("Player {}", choice)
+}
+
 pub fn display_round_summary(
     player_hands: &Vec<Hand>,
     dealer_hand: &Hand,
@@ -69,7 +82,7 @@ pub fn display_round_summary(
         display_player_hand(hand);
     }
     display_dealer_hand(dealer_hand);
-    println!("Scores:\n{}\n", message);
+    println!("\nScores:\n{}\n", message);
 
     if !player_hand_is_valid {
         println!("You're Bust!\nDealer Wins.");

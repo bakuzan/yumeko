@@ -43,6 +43,7 @@ pub const PLAYER_SPLIT: u32 = 3;
 pub const STARTING_HAND_COUNT: usize = 2;
 pub const BLACKJACK_MAXIMUM: u32 = 21;
 pub const DEALER_STANDS_VALUE: u32 = 17;
+pub const JOKERLESS_DECK_COUNT: usize = 52;
 
 pub const CHOICE_TEXT: &'static str = "
 \nWhat would you like to do?

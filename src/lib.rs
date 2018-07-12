@@ -14,7 +14,9 @@ mod utils;
 
 fn handle_user_choice(cards: &Vec<Card>, player_hand: &mut Hand) -> (u32, Vec<Card>, Option<Hand>) {
     if player_hand.is_blackjack() {
+        utils::clear_console();
         inform::display_blackjack(player_hand);
+
         return (constants::PLAYER_STAY, cards.to_vec(), None);
     }
 
@@ -26,16 +28,16 @@ fn handle_user_choice(cards: &Vec<Card>, player_hand: &mut Hand) -> (u32, Vec<Ca
         match trimmed.parse::<u32>() {
             Ok(choice) => {
                 if choice == constants::PLAYER_HIT {
-                    println!("Player Hits");
+                    inform::display_users_received_choice("Hits");
                     let cards = deal::take_a_card(&cards, player_hand);
 
                     return (choice, cards.to_vec(), None);
                 } else if choice == constants::PLAYER_STAY {
-                    println!("Player Stands");
+                    inform::display_users_received_choice("Stands");
 
                     return (choice, cards.to_vec(), None);
                 } else if choice == constants::PLAYER_SPLIT {
-                    println!("Player Splits");
+                    inform::display_users_received_choice("Splits");
 
                     let mut second_hand = player_hand.split();
                     let cards = deal::take_a_card(&cards, player_hand);
@@ -83,8 +85,7 @@ fn process_player_turn(cards: &Vec<Card>, hands: &mut Vec<Hand>) -> (Vec<Card>, 
         }
 
         let updated_hand = cloned_hands.remove(processed_hand_count);
-        hands.remove(processed_hand_count);
-        hands.insert(processed_hand_count, updated_hand);
+        utils::replace_item(&processed_hand_count, hands, updated_hand);
         processed_hand_count += 1;
     }
 
@@ -96,8 +97,6 @@ fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &mut Hand) -> Vec<Card> {
     let mut current_deck = cards.to_vec();
 
     while dealer_not_satified {
-        inform::display_dealer_hand(&dealer_hand);
-
         current_deck = deal::take_a_card(&current_deck, dealer_hand);
 
         dealer_not_satified = game::should_dealer_hit(&dealer_hand);
@@ -106,8 +105,9 @@ fn process_dealer_turn(cards: &Vec<Card>, dealer_hand: &mut Hand) -> Vec<Card> {
     current_deck.to_vec()
 }
 
-fn play_a_hand(cards: Vec<Card>) {
-    inform::display_separator();
+fn play_a_hand(cards: Vec<Card>, round: u32) {
+    inform::display_round(&cards, &round);
+
     let (cards, player_hand, dealer_hand) = deal::deal_round(&cards);
 
     inform::display_dealers_first_card(&dealer_hand);
@@ -135,12 +135,12 @@ fn play_a_hand(cards: Vec<Card>) {
         (player_hand_is_valid, dealer_hand_is_valid),
     );
 
-    game::play_again(active_deck, &play_a_hand);
+    game::play_again(round, active_deck, &play_a_hand);
 }
 
 pub fn play_blackjack() {
     println!("Yumeko - Blackjack");
 
     let cards = deck::get_shuffled_deck();
-    play_a_hand(cards);
+    play_a_hand(cards, 1);
 }
